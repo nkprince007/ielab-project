@@ -18,7 +18,7 @@ function active($page) {
 }
 
 function getUploadsDir() {
-  return "uploads/" . $_SESSION['UserData']['age_group'];
+  return "../uploads/" . $_SESSION['UserData']['age_group'];
 }
 
 /*Function to get directory structure */
