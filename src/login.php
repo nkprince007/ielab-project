@@ -88,6 +88,12 @@ EOSQL;
       $r = $stmt->execute();
       if ($r) {
         session_start();
+        $id = $conn->lastInsertId();
+        $stmt = $conn->prepare(
+          "SELECT * FROM users WHERE email=:email LIMIT 1;");
+        $stmt->bindParam('email', $email);
+        $r = $stmt->execute();
+        $result = $stmt->fetch(PDO::FETCH_UNIQUE);
         $Return['result'] = $_SESSION['UserData'] = $result;
       }
   }
