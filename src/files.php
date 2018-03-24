@@ -1,12 +1,31 @@
 <?php
   session_start();
+  if (!$_SESSION) {
+    header('Location: /');
+  }
   include_once('includes/functions.php');
+  include_once('includes/create.php');
 
   $files = dirTree('./' . getUploadsDir());
   $no_files = sizeof($files) === 0;
 
-  if (!$_SESSION) {
-    header('Location: /');
+  $q = <<<EOSQL
+SELECT name FROM files WHERE age_group=:age_group AND (:user=ANY(shared_with) OR
+:user=owner);
+EOSQL;
+  $stmt = $conn->prepare($q);
+  $stmt->bindValue('user', $_SESSION['UserData']['user_id']);
+  $stmt->bindValue('age_group', $_SESSION['UserData']['age_group']);
+  $stmt->execute();
+  $_shared_files = $stmt->fetchAll(PDO::FETCH_ASSOC);
+  $shared_files = array();
+  foreach ($_shared_files as $file) {
+    array_push($shared_files, $file['name']);
+  }
+
+  foreach ($files as $idx => $file) {
+    if (!in_array($file, $shared_files))
+      unset($files[$idx]);
   }
 ?>
 
@@ -40,10 +59,10 @@
       </thead>
       <tbody>
         <?php
-          foreach ($files as $key => $value) {
+          foreach ($files as $file) {
             echo "<tr>";
-            echo "<td>". $value ."</td>";
-            echo "<td><a href='/download.php?file=".urlencode($value)."'>". $value ."</a></td>";
+            echo "<td>". $file ."</td>";
+            echo "<td><a href='/download.php?file=".urlencode($file)."'>". $file ."</a></td>";
             echo "</tr>";
           }
         ?>
