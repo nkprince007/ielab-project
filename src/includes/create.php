@@ -17,3 +17,20 @@ $r = $conn->exec($sql);
 if ($r === false) {
   echo alert('danger', 'Users database table could not be created.');
 }
+
+$sql = <<<EOSQL
+CREATE TABLE IF NOT EXISTS files(
+  file_id SERIAL PRIMARY KEY,
+  path VARCHAR (512) UNIQUE NOT NULL,
+  age_group VARCHAR (50) NOT NULL,
+  name VARCHAR(512) UNIQUE NOT NULL,
+  owner int,
+  shared_with integer[]
+);
+EOSQL;
+
+$r = $conn->exec($sql);
+
+if ($r === false) {
+  echo alert('danger', 'Files database table could not be created.');
+}
